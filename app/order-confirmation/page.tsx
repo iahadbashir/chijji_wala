@@ -9,19 +9,23 @@
 // hydration errors (Next.js 14 App Router requirement).
 // ============================================================
 
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 import { useCartStore } from '@/store/useCartStore';
+import { createClient } from '@/lib/supabase/client';
+
+// ── Helper: short ID ──────────────────────────────────────────
+function shortId(id: string): string {
+  return id.split('-')[0].toUpperCase();
+}
 
 // ── WhatsApp config ───────────────────────────────────────────
 const WHATSAPP_BUSINESS_NUMBER = '923206000655';
 
 function buildWhatsAppUrl(orderId: string): string {
-  // Extract short hex (first segment of UUID)
-  const shortHex = orderId.split('-')[0].toUpperCase();
-  const message = `Hey Chijji! ✨ Just placed Order #${shortHex}. Can't wait for the vibe! 🎂`;
+  const message = `Hey Chijji! ✨ Just placed Order #${shortId(orderId)}. Can't wait for the vibe! 🎂`;
   return `https://wa.me/${WHATSAPP_BUSINESS_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
@@ -54,6 +58,9 @@ function ConfirmationCard() {
   const orderId   = params.get('id') ?? 'N/A';
   const clearCart = useCartStore((s) => s.clearCart);
 
+  const [orderStatus, setOrderStatus] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const cleared = useRef(false);
   useEffect(() => {
     if (!cleared.current) {
@@ -62,7 +69,74 @@ function ConfirmationCard() {
     }
   }, [clearCart]);
 
+  // Fetch order status and subscribe to real-time updates
+  useEffect(() => {
+    if (orderId === 'N/A') return;
+
+    const supabase = createClient();
+
+    // Initial fetch
+    const fetchOrder = async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('status')
+        .eq('id', orderId)
+        .single();
+
+      if (!error && data) {
+        setOrderStatus(data.status);
+      }
+      setLoading(false);
+    };
+
+    fetchOrder();
+
+    // Real-time subscription
+    const channel = supabase
+      .channel(`order:${orderId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `id=eq.${orderId}`,
+        },
+        (payload) => {
+          if (payload.new && 'status' in payload.new) {
+            setOrderStatus(payload.new.status as string);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [orderId]);
+
+  // Map order status to progress step
+  const getProgressStep = (status: string | null): number => {
+    if (!status) return 1;
+    switch (status) {
+      case 'pending':
+      case 'confirmed':
+        return 1;
+      case 'preparing':
+        return 2;
+      case 'out_for_delivery':
+        return 3;
+      case 'delivered':
+        return 3;
+      default:
+        return 1;
+    }
+  };
+
+  const progressStep = getProgressStep(orderStatus);
+  const progressWidth = `${(progressStep / 3) * 100}%`;
   const whatsappUrl = buildWhatsAppUrl(orderId);
+  const displayId = shortId(orderId);
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6 text-center">
@@ -100,7 +174,7 @@ function ConfirmationCard() {
           <p className="text-[14px] leading-relaxed text-zinc-400">
             Your order{' '}
             <span className="font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-              #{orderId}
+              #{displayId}
             </span>{' '}
             has been received. Our team is on it.
           </p>
@@ -110,7 +184,7 @@ function ConfirmationCard() {
         <div className="inline-flex items-center gap-2.5 rounded-2xl border border-zinc-700/60 bg-zinc-900/80 backdrop-blur-sm px-5 py-3">
           <div className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" aria-hidden />
           <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">Order ID</span>
-          <span className="text-[13px] font-black text-white tabular-nums">#{orderId}</span>
+          <span className="text-[13px] font-black text-white tabular-nums">#{displayId}</span>
         </div>
 
         {/* WhatsApp CTA */}
@@ -118,7 +192,7 @@ function ConfirmationCard() {
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`Track or update order #${orderId} via WhatsApp`}
+          aria-label={`Track or update order #${displayId} via WhatsApp`}
           className={[
             'group relative w-full overflow-hidden',
             'flex items-center justify-center gap-3',
@@ -152,20 +226,24 @@ function ConfirmationCard() {
         <div className="w-full rounded-2xl border border-zinc-800/60 bg-zinc-900/50 backdrop-blur-sm px-5 py-4">
           <div className="grid grid-cols-3 gap-4">
             {[
-              { icon: '📦', label: 'Order\nReceived', active: true },
-              { icon: '🛵', label: 'Rider\nAssigned',  active: false },
-              { icon: '✨', label: 'On\nThe Way',      active: false },
-            ].map((step, i) => (
+              { icon: '📦', label: 'Order\nReceived', step: 1 },
+              { icon: '🛵', label: 'Rider\nAssigned',  step: 2 },
+              { icon: '✨', label: 'On\nThe Way',      step: 3 },
+            ].map((item, i) => (
               <div key={i} className="flex flex-col items-center gap-1.5">
-                <span className={['text-xl', step.active ? '' : 'opacity-30'].join(' ')} aria-hidden>{step.icon}</span>
-                <p className={['text-[10px] font-bold uppercase tracking-[0.12em] text-center whitespace-pre-line leading-tight', step.active ? 'text-emerald-400' : 'text-zinc-700'].join(' ')}>
-                  {step.label}
+                <span className={['text-xl', progressStep >= item.step ? '' : 'opacity-30'].join(' ')} aria-hidden>{item.icon}</span>
+                <p className={['text-[10px] font-bold uppercase tracking-[0.12em] text-center whitespace-pre-line leading-tight', progressStep >= item.step ? 'text-emerald-400' : 'text-zinc-700'].join(' ')}>
+                  {item.label}
                 </p>
               </div>
             ))}
           </div>
           <div className="mt-4 h-1 rounded-full bg-zinc-800 overflow-hidden">
-            <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" aria-hidden />
+            <div 
+              className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] transition-all duration-500" 
+              style={{ width: progressWidth }}
+              aria-hidden 
+            />
           </div>
         </div>
       </div>
