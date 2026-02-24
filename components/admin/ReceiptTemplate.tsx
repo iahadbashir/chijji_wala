@@ -59,9 +59,9 @@ export const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
       >
         {/* ── HEADER ─────────────────────────────────────────── */}
         <div className="text-center mb-6 border-b-2 border-dashed border-black pb-4">
-          <div className="text-2xl font-black mb-1 tracking-tight">CHIJJI</div>
+          <div className="text-2xl font-black mb-1 tracking-tight">CHIJJI WALA</div>
           <div className="text-[9px] uppercase tracking-widest text-gray-700">
-            Quick-Commerce • Karachi
+            Quick-Commerce • Hafizabad
           </div>
         </div>
 

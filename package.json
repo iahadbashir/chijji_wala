@@ -6,12 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "gen-password-hash": "node scripts/generatePasswordHash.js"
   },
   "dependencies": {
     "@next/swc-darwin-arm64": "^16.1.6",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.49.0",
+    "@vercel/analytics": "^1.6.1",
+    "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.475.0",
@@ -24,6 +27,7 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
