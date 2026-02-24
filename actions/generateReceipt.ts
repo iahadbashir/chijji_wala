@@ -31,6 +31,7 @@ export function buildWhatsAppShareUrl(shortId: string): string {
  * Points to the order confirmation page with the full order ID.
  */
 export function buildTrackingUrl(orderId: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  // Use production URL, fallback to localhost for development
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://chijjiwalapk.vercel.app';
   return `${baseUrl}/order-confirmation?id=${orderId}`;
 }

@@ -52,7 +52,8 @@ async function fetchOrders(statusFilter: OrderStatus | null): Promise<OrderWithI
     .order('created_at', { ascending: false })
     .limit(100);
 
-  if (statusFilter) {
+  // Only filter if a specific status is selected (null means "All")
+  if (statusFilter !== null) {
     query = query.eq('status', statusFilter);
   }
 
