@@ -226,6 +226,7 @@ export async function processOrder(
 
   const { data: orderRow, error: orderError } = await supabase
     .from('orders')
+    // @ts-expect-error - Supabase type inference issue
     .insert(orderPayload)
     .select('id')
     .single();
@@ -238,7 +239,7 @@ export async function processOrder(
     };
   }
 
-  const orderId = orderRow.id;
+  const orderId = (orderRow as { id: string }).id;
 
   // ── STEP 6: Insert order items ──────────────────────────────
   // Each line item retains its custom_message for kitchen use.
@@ -252,8 +253,10 @@ export async function processOrder(
     custom_message:    item.custom_message?.trim() || null,
   }));
 
+  // 3. Insert order_items (linked to order_id)
   const { error: itemsError } = await supabase
     .from('order_items')
+    // @ts-expect-error - Supabase type inference issue
     .insert(itemPayloads);
 
   if (itemsError) {

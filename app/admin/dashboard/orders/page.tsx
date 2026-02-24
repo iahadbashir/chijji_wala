@@ -77,9 +77,10 @@ async function fetchStatusCounts(): Promise<Partial<Record<OrderStatus | 'all', 
 
   if (error || !data) return {};
 
-  const counts: Partial<Record<OrderStatus | 'all', number>> = { all: data.length };
-  for (const row of data) {
-    const s = row.status as OrderStatus;
+  const orders = data as { status: OrderStatus }[];
+  const counts: Partial<Record<OrderStatus | 'all', number>> = { all: orders.length };
+  for (const row of orders) {
+    const s = row.status;
     counts[s] = (counts[s] ?? 0) + 1;
   }
   return counts;

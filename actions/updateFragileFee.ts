@@ -39,9 +39,11 @@ export async function getSettings(): Promise<{
     return { current_delivery_fee: 150, current_fragile_fee: 100 };
   }
 
+  const settings = data as { current_delivery_fee: string; current_fragile_fee: string };
+
   return {
-    current_delivery_fee: parseFloat(data.current_delivery_fee),
-    current_fragile_fee:  parseFloat(data.current_fragile_fee),
+    current_delivery_fee: parseFloat(settings.current_delivery_fee),
+    current_fragile_fee:  parseFloat(settings.current_fragile_fee),
   };
 }
 
@@ -73,6 +75,7 @@ export async function updateFragileFee(
   // We never reference it by ID to avoid hardcoding the UUID.
   const { error } = await supabase
     .from('settings')
+    // @ts-expect-error - Supabase type inference issue
     .update({ current_fragile_fee: newFee.toFixed(2) })
     .eq('is_singleton', true);
 
