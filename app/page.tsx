@@ -5,7 +5,7 @@
 
 import { createServiceClient } from '@/lib/supabase/server';
 import type { Product } from '@/types/database';
-import ProductCard from '@/components/ProductCard';
+import ProductGrid from '@/components/ProductGrid';
 import Link from 'next/link';
 
 // ── Cart link in header ───────────────────────────────────────
@@ -66,12 +66,6 @@ export default async function StorefrontPage() {
           {/* Nav area */}
           <div className="flex items-center gap-3">
             <CartHeaderButton />
-            <Link
-              href="/admin/orders"
-              className="hidden sm:block rounded-xl border border-zinc-700/50 bg-zinc-900/60 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-zinc-500 hover:text-zinc-300 hover:border-zinc-600 transition-colors duration-200"
-            >
-              Admin
-            </Link>
           </div>
         </div>
       </header>
@@ -114,11 +108,7 @@ export default async function StorefrontPage() {
         ) : (
           <section>
             <h2 className="sr-only">Products</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <ProductGrid products={products} />
           </section>
         )}
       </main>

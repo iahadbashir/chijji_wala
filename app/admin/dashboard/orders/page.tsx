@@ -193,7 +193,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
               return (
                 <Link
                   key={tab.label}
-                  href={tab.status ? `/admin/orders?status=${tab.status}` : '/admin/orders'}
+                  href={tab.status ? `/admin/dashboard/orders?status=${tab.status}` : '/admin/dashboard/orders'}
                   className={[
                     'shrink-0 flex items-center gap-1.5 rounded-t-xl px-4 py-2.5 mb-[-1px]',
                     'text-[12px] font-bold border-b-2 transition-all duration-150',

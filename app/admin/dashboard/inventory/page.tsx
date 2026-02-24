@@ -79,7 +79,7 @@ export default async function InventoryPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6">
           <div className="flex items-center gap-3">
             <Link
-              href="/admin/orders"
+              href="/admin/dashboard/orders"
               className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-white transition-colors"
               aria-label="Back to orders"
             >
@@ -92,7 +92,7 @@ export default async function InventoryPage() {
           </div>
 
           <Link
-            href="/admin/orders"
+            href="/admin/dashboard/orders"
             className="flex items-center gap-2 rounded-xl border border-zinc-700 px-3.5 py-2 text-[12px] font-bold text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
           >
             📋 Orders

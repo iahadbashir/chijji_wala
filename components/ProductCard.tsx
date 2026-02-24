@@ -96,11 +96,13 @@ export interface ProductCardProps {
   product: Product;
   /** Override "now" for testing / Storybook. Defaults to new Date() */
   _nowOverride?: Date;
+  /** Optional click handler for the card (opens detail modal) */
+  onClick?: () => void;
 }
 
 // ── COMPONENT ─────────────────────────────────────────────────
 
-export function ProductCard({ product, _nowOverride }: ProductCardProps) {
+export function ProductCard({ product, _nowOverride, onClick }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
 
   // ── Availability state (re-evaluated every minute) ──────────
@@ -136,7 +138,10 @@ export function ProductCard({ product, _nowOverride }: ProductCardProps) {
   // ── Handlers ─────────────────────────────────────────────────
 
   /** Called by the CTA button */
-  const handleCTAClick = useCallback(() => {
+  const handleCTAClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    // Prevent card click from firing when clicking the button
+    e.stopPropagation();
+    
     if (product.requires_custom_text) {
       // Intercept — open the message modal instead of adding immediately
       setIsModalOpen(true);
@@ -145,7 +150,7 @@ export function ProductCard({ product, _nowOverride }: ProductCardProps) {
       // is_preorder = true when the product is currently outside its time window
       addItem({ product, quantity: 1, is_preorder: !isAvailable });
     }
-  }, [product, addItem]);
+  }, [product, addItem, isAvailable]);
 
   /** Called when the user submits the modal form */
   const handleModalSubmit = useCallback(
@@ -174,10 +179,13 @@ export function ProductCard({ product, _nowOverride }: ProductCardProps) {
     <>
       {/* ── CARD ─────────────────────────────────────────────── */}
       <article
+        onClick={onClick}
         className={[
           // Base
           'group relative flex flex-col rounded-2xl overflow-hidden',
           'bg-zinc-900 border border-zinc-800',
+          // Cursor
+          onClick ? 'cursor-pointer' : '',
           // Hover glow — adapts to availability
           'transition-all duration-300 ease-out',
           isAvailable

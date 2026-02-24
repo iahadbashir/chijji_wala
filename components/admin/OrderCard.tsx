@@ -15,7 +15,21 @@ import React, { useState, useOptimistic, useTransition } from 'react';
 import Image from 'next/image';
 import type { OrderWithItems, OrderStatus, OrderItemWithProduct } from '@/types/database';
 import { formatPrice } from '@/types/database';
-import { updateOrderStatus, ADMIN_STATUSES } from '@/actions/updateOrderStatus';
+import { updateOrderStatus } from '@/actions/updateOrderStatus';
+import { ShareReceiptButton } from './ShareReceiptButton';
+
+// ── ADMIN STATUSES ────────────────────────────────────────────
+
+/** All statuses available in the admin dropdown */
+const ADMIN_STATUSES: OrderStatus[] = [
+  'pending',
+  'confirmed',
+  'preparing',
+  'out_for_delivery',
+  'delivered',
+  'cancelled',
+  'refunded',
+];
 
 // ── STATUS META ───────────────────────────────────────────────
 
@@ -550,6 +564,14 @@ export function OrderCard({ order }: OrderCardProps) {
           orderId={order.id}
           currentStatus={order.status}
         />
+
+        {/* ── 7. SHARE RECEIPT (WhatsApp) ────────────────────── */}
+        <section aria-label="Share receipt">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">
+            Share Receipt
+          </p>
+          <ShareReceiptButton order={order} shortId={shortId(order.id)} />
+        </section>
 
       </div>
     </article>

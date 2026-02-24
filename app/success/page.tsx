@@ -33,7 +33,9 @@ const WHATSAPP_BUSINESS_NUMBER = '923206000655';
 
 /** Build a wa.me deep-link with a pre-filled, URL-encoded message */
 function buildWhatsAppUrl(orderId: string): string {
-  const message = `Hey Chijji! ✨ Just placed Order #${orderId}. Can't wait for the vibe!`;
+  // Extract short hex (first segment of UUID)
+  const shortHex = orderId.split('-')[0].toUpperCase();
+  const message = `Hey Chijji! ✨ Just placed Order #${shortHex}. Can't wait for the vibe! 🎂`;
   return `https://wa.me/${WHATSAPP_BUSINESS_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 

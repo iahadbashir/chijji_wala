@@ -9,7 +9,8 @@ import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/server';
 import type { OrderStatus, UUID } from '@/types/database';
 
-export const ADMIN_STATUSES: OrderStatus[] = [
+// Valid statuses for admin updates (internal constant, not exported)
+const ADMIN_STATUSES: OrderStatus[] = [
   'pending',
   'confirmed',
   'preparing',
