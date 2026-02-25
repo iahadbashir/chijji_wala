@@ -6,12 +6,6 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import type { Product } from '@/types/database';
 import ProductGrid from '@/components/ProductGrid';
-import Link from 'next/link';
-
-// ── Cart link in header ───────────────────────────────────────
-// We import a thin client wrapper so we can keep this page a
-// pure Server Component and still show a reactive cart badge.
-import CartHeaderButton from '@/components/CartHeaderButton';
 
 // ── Hero categories ───────────────────────────────────────────
 const CATEGORIES = ['🎂 Cakes', '💐 Flowers', '🍭 Snacks', '🎁 Gifts', '✨ All'];
@@ -34,93 +28,6 @@ async function fetchProducts(): Promise<Product[]> {
     console.error('[fetchProducts] Unexpected error:', err);
     return [];
   }
-}
-
-// ── Page ───────────────────────────────────────────────────────
-export const revalidate = 60; // ISR: re-fetch every 60 s
-
-export default async function StorefrontPage() {
-  const products = await fetchProducts();
-
-  return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-
-      {/* ── Ambient background ─────────────────────────────── */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute top-[-15%] left-1/2 -translate-x-1/2 h-[700px] w-[700px] rounded-full bg-violet-600/8 blur-[140px]" />
-        <div className="absolute bottom-0 right-[-10%] h-[400px] w-[400px] rounded-full bg-fuchsia-600/6 blur-[120px]" />
-      </div>
-
-      {/* ── Sticky header ──────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-zinc-800/60 bg-zinc-950/80 backdrop-blur-xl">
-        <div className="mx-auto max-w-6xl flex items-center justify-between px-4 sm:px-6 h-14">
-
-          {/* Wordmark */}
-          <Link
-            href="/"
-            className="text-[17px] font-black tracking-tight bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent select-none"
-          >
-            Chijji ✨
-          </Link>
-
-          {/* Nav area */}
-          <div className="flex items-center gap-3">
-            <CartHeaderButton />
-          </div>
-        </div>
-      </header>
-
-      {/* ── Hero ───────────────────────────────────────────── */}
-      <section className="relative px-4 sm:px-6 pt-12 pb-8 text-center mx-auto max-w-2xl">
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-400/80 mb-4">
-          Delivered in 45 minutes
-        </p>
-        <h1 className="text-[46px] sm:text-[58px] font-black tracking-tight leading-[0.95] mb-5">
-          <span className="bg-gradient-to-br from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
-            The vibe,
-          </span>
-          <br />
-          <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
-            delivered.
-          </span>
-        </h1>
-        <p className="text-[15px] text-zinc-400 leading-relaxed max-w-md mx-auto">
-          Cakes, flowers, snacks and gifts — express your feelings instantly.
-        </p>
-
-        {/* Category pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
-          {CATEGORIES.map((c) => (
-            <span
-              key={c}
-              className="rounded-full border border-zinc-700/60 bg-zinc-900/70 px-4 py-1.5 text-[12px] font-semibold text-zinc-400 hover:text-white hover:border-zinc-500 cursor-pointer transition-colors duration-200 select-none"
-            >
-              {c}
-            </span>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Product grid ───────────────────────────────────── */}
-      <main className="relative z-10 px-4 sm:px-6 pb-24 mx-auto max-w-6xl">
-        {products.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <section>
-            <h2 className="sr-only">Products</h2>
-            <ProductGrid products={products} />
-          </section>
-        )}
-      </main>
-
-      {/* ── Footer ─────────────────────────────────────────── */}
-      <footer className="border-t border-zinc-800/50 text-center py-8 px-4">
-        <p className="text-[11px] text-zinc-700 uppercase tracking-[0.15em] font-semibold">
-          Chijji &copy; {new Date().getFullYear()} &mdash; Fast delivery, big vibes.
-        </p>
-      </footer>
-    </div>
-  );
 }
 
 // ── Empty / env-not-configured state ─────────────────────────
@@ -153,6 +60,84 @@ function EmptyState() {
           <p className="mt-3 text-[11px] text-amber-400/60">Copy these into /HXD/.env.local</p>
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Page ───────────────────────────────────────────────────────
+export const revalidate = 60; // ISR: re-fetch every 60 s
+
+export default async function StorefrontPage() {
+  const products = await fetchProducts();
+
+  return (
+    <div className="min-h-screen">
+
+      {/* ── Ambient background ─────────────────────────────── */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
+        <div className="absolute top-[-15%] left-1/2 -translate-x-1/2 h-[700px] w-[700px] rounded-full bg-violet-600/8 blur-[140px]" />
+        <div className="absolute bottom-0 right-[-10%] h-[400px] w-[400px] rounded-full bg-fuchsia-600/6 blur-[120px]" />
+      </div>
+
+      {/* ── Hero ───────────────────────────────────────────── */}
+      <section className="relative px-4 sm:px-6 pt-8 pb-8 text-center mx-auto max-w-2xl">
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-400/80 mb-4">
+          Delivered in 45 minutes
+        </p>
+        <h1 className="text-[46px] sm:text-[58px] font-black tracking-tight leading-[0.95] mb-5">
+          <span className="bg-gradient-to-br from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
+            The vibe,
+          </span>
+          <br />
+          <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
+            delivered.
+          </span>
+        </h1>
+        <p className="text-[15px] text-zinc-400 leading-relaxed max-w-md mx-auto">
+          Cakes, flowers, snacks and gifts — express your feelings instantly.
+        </p>
+
+        {/* Demo link */}
+        <div className="mt-6">
+          <a
+            href="/checkout-wizard"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600/10 border border-violet-500/30 text-sm font-semibold text-violet-400 hover:bg-violet-600/20 hover:border-violet-500/50 transition-all duration-200"
+          >
+            ✨ Try New Checkout Experience
+          </a>
+        </div>
+
+        {/* Category pills */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
+          {CATEGORIES.map((c) => (
+            <span
+              key={c}
+              className="rounded-full border border-zinc-700/60 bg-zinc-900/70 px-4 py-1.5 text-[12px] font-semibold text-zinc-400 hover:text-white hover:border-zinc-500 cursor-pointer transition-colors duration-200 select-none"
+            >
+              {c}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Product grid ───────────────────────────────────── */}
+      <main className="relative z-10 px-4 sm:px-6 pb-8 mx-auto max-w-6xl">
+        {products.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <section>
+            <h2 className="sr-only">Products</h2>
+            <ProductGrid products={products} />
+          </section>
+        )}
+      </main>
+
+      {/* ── Footer ─────────────────────────────────────────── */}
+      <footer className="border-t border-zinc-800/50 text-center py-8 px-4 mb-16 sm:mb-0">
+        <p className="text-[11px] text-zinc-700 uppercase tracking-[0.15em] font-semibold">
+          Chijji &copy; {new Date().getFullYear()} &mdash; Fast delivery, big vibes.
+        </p>
+      </footer>
     </div>
   );
 }

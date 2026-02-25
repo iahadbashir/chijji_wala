@@ -30,6 +30,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ── iOS Safe Area ────────────────────────────────────────── */
+.h-safe-area-inset-bottom {
+  height: env(safe-area-inset-bottom);
+}
+
 /* ── Scrollbar ────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 4px;
@@ -41,9 +46,62 @@ body {
   background: #3f3f46; /* zinc-700 */
   border-radius: 2px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: #52525b; /* zinc-600 */
+}
 
-/* ── Sparkle animation for success page ──────────────────── */
-@keyframes sparkle-pulse {
-  0%, 100% { opacity: 0.2; scale: 0.8; }
-  50%       { opacity: 1;   scale: 1.4; }
+/* ── Animations ───────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+}
+
+/* ── React Aria Overrides ─────────────────────────────────── */
+.react-aria-ModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+}
+
+.react-aria-Modal {
+  outline: none;
+}
+
+/* ── Utility Classes ──────────────────────────────────────── */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

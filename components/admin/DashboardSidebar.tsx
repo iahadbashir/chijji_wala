@@ -21,6 +21,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: '/admin/dashboard/orders', label: 'Orders', icon: '📦' },
   { href: '/admin/dashboard/inventory', label: 'Inventory', icon: '🏪' },
+  { href: '/admin/dashboard/settings', label: 'Settings', icon: '⚙️' },
 ];
 
 export function DashboardSidebar() {
